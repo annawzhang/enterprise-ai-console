@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<title>Console 核心规则测试</title>
+<style>
+  body { font-family:-apple-system,"PingFang SC",sans-serif; padding:24px; }
+  li.pass { color:#16a34a; } li.fail { color:#dc2626; font-weight:600; }
+  #summary { font-size:1.1rem; font-weight:700; }
+</style>
+</head>
+<body>
+<h1>Console 核心规则测试</h1>
+<div id="summary"></div>
+<ul id="out"></ul>
+<script src="src/data.js"></script>
+<script src="src/core.js"></script>
+<script>
+  const D = CONSOLE_DATA, C = ConsoleCore;
+  const results = [];
+  function test(name, fn) { try { fn(); results.push([name, true]); } catch (e) { results.push([name + " — " + e.message, false]); } }
+  function eq(a, b) { if (JSON.stringify(a) !== JSON.stringify(b)) throw new Error(`期望 ${JSON.stringify(b)}，实际 ${JSON.stringify(a)}`); }
+  const shelf = (id) => D.shelves.find((s) => s.id === id);
+
+  test("访客只能看公开书架", () => {
+    eq(D.shelves.filter((s) => C.canSeeShelf(D.roles.viewer, s)).every((s) => s.clearance === 1), true);
+  });
+  test("区域负责人看不到其他区域的特例书架", () => {
+    eq(C.canSeeShelf(D.roles.amer, shelf("us-ben")), true);
+    eq(C.canSeeShelf(D.roles.amer, shelf("sg-cpf")), false);
+  });
+  test("运营敏感书架只有管理员可见", () => {
+    eq(Object.keys(D.roles).filter((k) => C.canSeeShelf(D.roles[k], shelf("ops"))), ["admin"]);
+  });
+  test("检索结果不泄露无权限书架的文献", () => {
+    eq(C.searchDocs(D, D.roles.apac, "401").length, 0);
+    eq(C.searchDocs(D, D.roles.admin, "401").length, 1);
+  });
+  test("异常列表按区域隔离并按严重度排序", () => {
+    const ex = C.scopedExceptions(D, D.roles.amer);
+    eq(ex.every((e) => e.region === "AMER"), true);
+    eq(ex.map((e) => e.severity), [...ex.map((e) => e.severity)].sort((a, b) => b - a));
+  });
+  test("总览命中率按对话量加权", () => {
+    const o = C.overview(D, D.roles.admin);
+    const s = D.regionStats;
+    const expected = (s.AMER.hitRate * s.AMER.sessions + s.APAC.hitRate * s.APAC.sessions + s.EMEA.hitRate * s.EMEA.sessions) / o.sessions;
+    eq(o.hitRate.toFixed(6), expected.toFixed(6));
+  });
+  test("自检发现预埋的配置问题", () => {
+    const failed = C.selfCheck(D, D.asOf).filter((c) => !c.ok).map((c) => c.name);
+    eq(failed.includes("智能体绑定的书架都存在"), true);
+    eq(failed.includes("文献都归属有效书架"), true);
+  });
+  test("修复配置后对应自检项通过", () => {
+    const fixed = { ...D, agents: D.agents.filter((a) => a.id !== "a-expense"), docs: D.docs.filter((d) => d.shelf !== "legacy") };
+    const byName = Object.fromEntries(C.selfCheck(fixed, D.asOf).map((c) => [c.name, c.ok]));
+    eq(byName["智能体绑定的书架都存在"], true);
+    eq(byName["文献都归属有效书架"], true);
+  });
+
+  const passed = results.filter((r) => r[1]).length;
+  document.getElementById("summary").textContent = `${passed} / ${results.length} 通过`;
+  document.getElementById("out").innerHTML = results.map(([n, ok]) => `<li class="${ok ? "pass" : "fail"}">${ok ? "✓" : "✗"} ${n}</li>`).join("");
+  document.title = `${passed}/${results.length} passed`;
+</script>
+</body>
+</html>

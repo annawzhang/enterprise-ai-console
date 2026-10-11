@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Enterprise AI Console · 企业级 AI 工作台</title>
+<link rel="stylesheet" href="src/style.css" />
+</head>
+<body>
+<aside class="side">
+  <div class="brand">AI Console<small>企业级 AI 工作台</small></div>
+  <nav id="nav">
+    <a href="#overview" data-page="overview">指挥总览</a>
+    <a href="#library" data-page="library">知识图书馆</a>
+    <a href="#region" data-page="region">区域作战室</a>
+    <a href="#bot" data-page="bot">Chatbot 运营</a>
+    <a href="#tools" data-page="tools">区域工具</a>
+    <a href="#system" data-page="system">系统自检</a>
+  </nav>
+  <div class="side-foot">治理层 · 运营侧监控与配置<br/>执行层 · 员工侧智能体对话</div>
+</aside>
+<main>
+  <header class="top">
+    <div><h1 id="page-title"></h1><div class="meta" id="page-sub"></div></div>
+    <label class="role">当前身份
+      <select id="role"></select>
+    </label>
+  </header>
+  <div class="demo">演示数据全部虚构 · 切换身份可查看权限与区域数据隔离效果</div>
+  <section id="view"></section>
+</main>
+<script src="src/data.js"></script>
+<script src="src/core.js"></script>
+<script src="src/app.js"></script>
+</body>
+</html>
