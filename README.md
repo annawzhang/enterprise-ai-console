@@ -2,6 +2,11 @@
 
 **把分散在多个系统里的运营工作，收拢到一个按身份分权、能自检配置的指挥台。**
 
+
+> **Copyright © 2026 张文婧 (Anna Zhang)** · [MIT License](./LICENSE) · [github.com/annawzhang](https://github.com/annawzhang)  
+> 欢迎学习与面试查阅；保留版权与许可声明。**禁止删除作者信息后冒充本人作品二次发表。** 公开内容为虚构/脱敏演示数据。
+
+
 [在线演示](https://annawzhang.github.io/enterprise-ai-console/) · [运行测试](https://annawzhang.github.io/enterprise-ai-console/tests.html)
 
 面向企业员工服务（薪酬、福利、假期、税务等）的 AI 运营工作台。员工侧由智能体 7×24 回答问题，
